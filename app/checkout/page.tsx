@@ -189,7 +189,7 @@ const CheckoutPage = () => {
   }, [paymentStatus, router]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Checkout</h1>
       <p className="text-lg text-gray-600 mb-6">
         Please scan the QR code below to complete your payment.
