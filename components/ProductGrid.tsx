@@ -42,15 +42,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({ addToCart }) => {
       {products.map((product) => (
         <Card
           key={product.id}
-          className=" border border-black hover:scale-10 hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 ease-in-out"
+          className=" max-w-72 border border-black hover:scale-10 hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 ease-in-out"
         >
           <CardHeader>
             <CardTitle>{product.name}</CardTitle>
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-20 object-contain"
-            />
           </CardHeader>
           <CardContent>
             <div className=" flex justify-between">

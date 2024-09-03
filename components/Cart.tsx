@@ -1,5 +1,5 @@
-"use client";
 import React from "react";
+import { v4 as uuidv4 } from "uuid"; // Import uuid for unique ID generation
 import {
   Sheet,
   SheetContent,
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Keypair } from "@solana/web3.js";
 
 interface Product {
   id: number;
@@ -31,7 +32,8 @@ const Cart: React.FC<CartProps> = ({ cart, removeFromCart }) => {
   const totalSol = cart.reduce((total, item) => total + item.price, 0);
 
   const handleCheckout = () => {
-    router.push(`/checkout?amount=${totalSol}`);
+    const uniqueReference = new Keypair().publicKey;
+    router.push(`/checkout?amount=${totalSol}&reference=${uniqueReference}`);
   };
 
   return (
@@ -60,7 +62,7 @@ const Cart: React.FC<CartProps> = ({ cart, removeFromCart }) => {
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-20 h-20 object-cover rounded-md"
+                      className="w-20 object-cover rounded-md"
                     />
                     <div className="w-full">
                       <div className="flex justify-between items-center w-full">
