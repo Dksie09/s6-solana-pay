@@ -26,6 +26,12 @@ const CheckoutPage = () => {
     const maxAttempts = timeoutDuration / checkInterval;
 
     async function initiatePayment() {
+      if (!amountToPay || !referenceString) {
+        console.error("Missing required parameters: amount or reference");
+        setPaymentStatus("failed");
+        return;
+      }
+
       try {
         console.log("1. ✅ Establish connection to the network");
         const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -35,10 +41,8 @@ const CheckoutPage = () => {
         const recipient = new PublicKey(
           "GZuj9nLDiGVe9f8o4XCqYE3k4Z6DYvvbv7VxoMqeHskf"
         );
-        const amount = new BigNumber(amountToPay || 0);
-        const reference = new PublicKey(
-          referenceString || Keypair.generate().publicKey.toString()
-        );
+        const amount = new BigNumber(amountToPay);
+        const reference = new PublicKey(referenceString);
 
         const label = "Store";
         const message = "Thanks for shopping with us!";
@@ -72,23 +76,20 @@ const CheckoutPage = () => {
           }
 
           try {
-            const signatureInfo = await findReference(
-              connection,
-              new PublicKey(
-                referenceString || Keypair.generate().publicKey.toString()
-              ),
-              { finality: "confirmed" }
-            );
+            const signatureInfo = await findReference(connection, reference, {
+              finality: "confirmed",
+            });
 
             try {
               await validateTransfer(connection, signatureInfo.signature, {
                 recipient,
-                amount: new BigNumber(amountToPay || 0),
+                amount,
               });
               setPaymentStatus("validated");
               clearInterval(intervalId);
             } catch (error) {
               console.error("❌ Payment validation failed", error);
+              setPaymentStatus("failed");
             }
           } catch (error) {
             console.error("❌ Transaction not found", error);
@@ -97,6 +98,7 @@ const CheckoutPage = () => {
           attempts += 1;
         }, checkInterval);
 
+        // Redirect to timeout status if no payment is confirmed within timeout duration
         setTimeout(() => {
           if (paymentStatus === "pending") {
             router.push(`/payment-status?status=timeout`);
@@ -105,6 +107,7 @@ const CheckoutPage = () => {
         }, timeoutDuration);
       } catch (error) {
         console.error("Error initiating payment:", error);
+        setPaymentStatus("failed");
       }
     }
 
@@ -135,6 +138,14 @@ const CheckoutPage = () => {
     if (paymentStatus === "timeout") {
       setTimeout(() => {
         router.push(`/payment-status?status=timeout`);
+        setTimeout(() => {
+          router.push(`/`);
+        }, 5000);
+      }, 0);
+    }
+    if (paymentStatus === "failed") {
+      setTimeout(() => {
+        router.push(`/payment-status?status=failed`);
         setTimeout(() => {
           router.push(`/`);
         }, 5000);
