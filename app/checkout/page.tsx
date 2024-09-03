@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { clusterApiUrl, Connection, PublicKey, Keypair } from "@solana/web3.js";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import {
   encodeURL,
   createQR,
@@ -9,6 +9,7 @@ import {
 } from "@solana/pay";
 import BigNumber from "bignumber.js";
 import { useRouter, useSearchParams } from "next/navigation";
+import QRCodeStyling from "qr-code-styling";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -58,11 +59,33 @@ const CheckoutPage = () => {
           memo,
         });
 
-        const qrCode = createQR(url);
-        const element = document.getElementById("qr-code");
-        if (element) {
-          element.innerHTML = ""; // Clear previous QR codes
-          qrCode.append(element);
+        console.log(url.href);
+
+        const qrCode = new QRCodeStyling({
+          width: 300,
+          height: 300,
+          type: "svg",
+          data: url.href,
+          dotsOptions: {
+            color: "#000000",
+            type: "extra-rounded",
+          },
+          image: "/cat.png",
+          backgroundOptions: {
+            color: "#ffffff",
+          },
+          imageOptions: {
+            hideBackgroundDots: true,
+            crossOrigin: "anonymous",
+            margin: 20,
+          },
+        });
+
+        // Clear any previous QR code before appending a new one
+        const qrCodeContainer = document.getElementById("qr-code");
+        if (qrCodeContainer) {
+          qrCodeContainer.innerHTML = ""; // Clear previous QR code
+          qrCode.append(qrCodeContainer);
         }
 
         console.log("4. ⏳ Waiting for payment status");
